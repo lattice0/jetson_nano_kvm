@@ -125,7 +125,7 @@ to discover yours. Example of mine:
 
 Wait, wtf? Why this is a local file? I don't know what's happening, but this should show you which one is being used. You're gonna need its name. The file is already at `/boot`.
 
-You might wonder that since we replaced all the device tree files on `/boot`, then it should load the modified one already. Somehow, in my case, it didn't. I think it has to do with the fact that it's loading a local one like shown above. Anyways, to bypass this, we have to inform the `/boot/extlinux/extlinux.conf` where to locate our file. Change from
+You might wonder that since we replaced all the device tree files on `/boot`, then it should load the modified one already. Somehow, in my case, it didn't. I think it has to do with the fact that it's loading a local one like shown above. If you know how to change this, open an issue please. Anyways, to bypass this, we have to inform the `/boot/extlinux/extlinux.conf` where to locate our file. Change from
 
 ```
 TIMEOUT 30
