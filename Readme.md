@@ -123,7 +123,9 @@ to discover yours. Example of mine:
 [    0.236710] DTS File Name: /home/lz/Linux_for_Tegra/source/public/kernel/kernel-4.9/arch/arm64/boot/dts/../../../../../../hardware/nvidia/platform/t210/porg/kernel-dts/tegra210-p3448-0000-p3449-0000-a00.dts
 ```
 
-Wait, wtf? Why this is a local file? I don't know what's happening, but this should show you which one is being used. You're gonna need its name. The file is already at `/boot`, so all we have to do now is inform the `/boot/extlinux/extlinux.conf` where to locate our file. Change from
+Wait, wtf? Why this is a local file? I don't know what's happening, but this should show you which one is being used. You're gonna need its name. The file is already at `/boot`.
+
+You might wonder that since we replaced all the device tree files on `/boot`, then it should load the modified one already. Somehow, in my case, it didn't. I think it has to do with the fact that it's loading a local one like shown above. Anyways, to bypass this, we have to inform the `/boot/extlinux/extlinux.conf` where to locate our file. Change from
 
 ```
 TIMEOUT 30
@@ -158,4 +160,15 @@ LABEL primary
 
 that is, add the path to your dtb file. In my case, `FDT /boot/tegra210-p3448-0000-p3449-0000-a00.dtb`.
 
-Note that you can add a second testing profile, which can be selected at boot time if you have a serial device to plug into the jetson nano like in this video https://www.youtube.com/watch?v=Kwpxhw41W50. When you boot you can select your second LABEL by typing its number. This is useful if you want to test different `Image`s without substituting the original one like we did.
+Note that you can add a second testing profile, which can be selected at boot time if you have a serial device to plug into the jetson nano like in this video https://www.youtube.com/watch?v=Kwpxhw41W50. When you boot you can select your second `LABEL` by typing its number. This is useful if you want to test different `Image`s without substituting the original one like we did.
+
+Now reboot, and then run `ls /dev | grep kvm` to confirm if the `kvm` file exists. This means it's working. You should also run 
+
+```bash
+ls  /proc/device-tree/interrupt-controller
+ compatible  '#interrupt-cells'   interrupt-controller   interrupt-parent   interrupts   linux,phandle   name   phandle   reg   status
+```
+
+and see that the node `interrupts`, which didn't exist before, was added. This means the irc interrupt activation worked.
+
+You can run qemu/firecracker now. I only tested with firecracker though.
