@@ -10,7 +10,7 @@ So, put your Nano to work with the latest Ubuntu image provided by Jetson Nano, 
 sudo apt update && sudo apt-get install -y build-essential bc git curl wget xxd kmod libssl-dev
 ```
 
-Now, we should get the kernel source at [https://developer.nvidia.com/embedded/downloads](https://developer.nvidia.com/embedded/downloads). As af today, (july 15) the latest is [https://developer.nvidia.com/embedded/l4t/r32_release_v5.1/r32_release_v5.1/sources/t210/public_sources.tbz2](https://developer.nvidia.com/embedded/l4t/r32_release_v5.1/r32_release_v5.1/sources/t210/public_sources.tbz2). But wait, use the script below to download and unpack everything.
+Now, we should get the kernel source at [https://developer.nvidia.com/embedded/downloads](https://developer.nvidia.com/embedded/downloads). As af today, (Feb 03, 2023) the latest is [https://developer.nvidia.com/embedded/l4t/r32_release_v7.1/sources/t210/public_sources.tbz2](https://developer.nvidia.com/embedded/l4t/r32_release_v7.1/sources/t210/public_sources.tbz2). But wait, use the script below to download and unpack everything.
 
 The linux kernel has a config file which dictates which kernel options are enabled in the compilation process. What we need to do is enable these options, which are
 
@@ -30,7 +30,7 @@ sudo apt update && sudo apt-get install -y build-essential bc git curl wget xxd 
 
 #Gets the kernel
 cd ~/
-wget https://developer.nvidia.com/embedded/l4t/r32_release_v5.1/r32_release_v5.1/sources/t210/public_sources.tbz2
+wget https://developer.nvidia.com/embedded/l4t/r32_release_v7.1/sources/t210/public_sources.tbz2
 tar -jxvf public_sources.tbz2
 JETSON_NANO_KERNEL_SOURCE=~/Linux_for_Tegra/source/public/
 tar -jxvf kernel_src.tbz2
@@ -45,7 +45,7 @@ Compiling the kernel now would already activate KVM, but we would still miss an 
 
 What we need to do is specify, in the device tree, the features of the irq chip on the CPU. The device tree is a file that contains addresses for all devices on the Jetson Nano chip. 
 
-This must be done by hand. Apply the patch below to the file `Linux_for_Tegra/source/public/kernel_src/hardware/nvidia/soc/t210/kernel-dts/tegra210-soc/tegra210-bthrot-cdev.dtsi`. Don't use the patch tool as it'll likely not work, just do it by hand:
+This must be done by hand. Apply the patch below to the file `Linux_for_Tegra/source/public/kernel_src/hardware/nvidia/soc/t210/kernel-dts/tegra210-soc/tegra210-soc-base.dtsi`. Don't use the patch tool as it'll likely not work, just do it by hand:
 
 ```
 --- a/hardware/nvidia/soc/t210/kernel-dts/tegra210-soc/tegra210-soc-base.dtsi     2020-08-31 08:40:36.602176618 +0800
@@ -91,24 +91,19 @@ sudo cp /boot /boot_original
 sudo cp -r /lib /lib_original
 ```
 
-```
-cd $JETSON_NANO_KERNEL_SOURCE/modules/lib/
-sudo cp -r firmware /lib/firmware
-sudo cp -r modules /lib/modules
-```
-
-Now we can `rsync` the files with the system ones (warning, untested, I used `sudo nautilus` and moved by hand on mine).
+Now we can `rsync` the files with the system ones.
 
 ```bash
-rsync -avh firmware /lib/firmware
-rsync -avh modules /lib/modules
+cd $JETSON_NANO_KERNEL_SOURCE/modules/lib/
+rsync -avh firmware/ /lib/firmware
+rsync -avh modules/ /lib/modules
 ```
 
 Now we must also update the boot folder:
 
 ```bash
 cd $JETSON_NANO_KERNEL_SOURCE/build/arc/arm64/
-rsync -avh boot /boot
+rsync -avh boot/ /boot
 ```
 
 Notice that we copied all of the dtb files, there are many for different models, but just one that we should use. Run
